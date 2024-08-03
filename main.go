@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// URL represents a URL record
 type URL struct {
 	ID          string    `json:"id"`
 	OriginalUrl string    `json:"originalUrl"`
@@ -16,17 +17,20 @@ type URL struct {
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
+// In-memory database to store URLs
 var urlDB = make(map[string]URL)
 
+// generateShortUrl creates a shortened version of the original URL
 func generateShortUrl(originalUrl string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(originalUrl))
 	data := hasher.Sum(nil)
 	hash := hex.EncodeToString(data)
 
-	return hash[:8]
+	return hash[:8] // Use the first 8 characters of the hash
 }
 
+// getUrl retrieves the original URL by its shortened version
 func getUrl(id string) string {
 	if url, ok := urlDB[id]; ok {
 		return url.OriginalUrl
@@ -35,6 +39,7 @@ func getUrl(id string) string {
 	return ""
 }
 
+// createUrl generates a short URL and stores it in the in-memory database
 func createUrl(originalUrl string) (shortUrl string) {
 	shortUrl = generateShortUrl(originalUrl)
 
@@ -48,6 +53,7 @@ func createUrl(originalUrl string) (shortUrl string) {
 	return
 }
 
+// handleCreateUrl handles requests to shorten URLs
 func handleCreateUrl(w http.ResponseWriter, r *http.Request) {
 	type RequestBody struct {
 		Url string `json:"url"`
@@ -65,9 +71,9 @@ func handleCreateUrl(w http.ResponseWriter, r *http.Request) {
 
 		json.NewEncoder(w).Encode(shortUrl)
 	}
-
 }
 
+// handleRedirectToUrl handles redirection from shortened URL to the original URL
 func handleRedirectToUrl(w http.ResponseWriter, r *http.Request) {
 	urlId := r.URL.Path[len("/redirect/"):]
 
@@ -80,13 +86,11 @@ func handleRedirectToUrl(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// main function to set up routes and start the server
 func main() {
-
-	// PO method
 	http.HandleFunc("/shortner", handleCreateUrl)
 	http.HandleFunc("/redirect/", handleRedirectToUrl)
 
-	// Starting http server
 	fmt.Println("Server running on Port 8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
