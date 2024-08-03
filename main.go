@@ -46,20 +46,22 @@ func createUrl(originalUrl string) (shortUrl string) {
 	}
 
 	return
-
 }
 
 func handleCreateUrl(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.Method)
+	type RequestBody struct {
+		Url string `json:"url"`
+	}
+
 	if r.Method == "POST" {
-		var url URL
-		err := json.NewDecoder(r.Body).Decode(&url)
+		var body RequestBody
+		err := json.NewDecoder(r.Body).Decode(&body)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadGateway)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		shortUrl := createUrl(url.OriginalUrl)
+		shortUrl := createUrl(body.Url)
 
 		json.NewEncoder(w).Encode(shortUrl)
 	}
@@ -67,7 +69,6 @@ func handleCreateUrl(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRedirectToUrl(w http.ResponseWriter, r *http.Request) {
-	// get id from path
 	urlId := r.URL.Path[len("/redirect/"):]
 
 	originalUrl := getUrl(urlId)
@@ -83,7 +84,7 @@ func main() {
 
 	// PO method
 	http.HandleFunc("/shortner", handleCreateUrl)
-	http.HandleFunc("/redirect", handleRedirectToUrl)
+	http.HandleFunc("/redirect/", handleRedirectToUrl)
 
 	// Starting http server
 	fmt.Println("Server running on Port 8080")
