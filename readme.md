@@ -73,4 +73,7 @@ Feel free to contribute by opening issues or submitting pull requests.
 
 ## Support
 
-For questions, contact [your email](mailto:zeshanshakil0@gmail.com).
+<br>
+For questions, contact On [email](mailto:zeshanshakil0@gmail.com).
+
+If you find this project useful, please star the repository and follow me on [GitHub](https://github.com/zeshantech).
